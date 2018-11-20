@@ -64,4 +64,6 @@ ENV ANSIBLE_LIBRARY /ansible/library
 
 WORKDIR /ansible/playbooks
 
-ENTRYPOINT ["ansible-playbook"]
+CMD ["ansible", "--version"]
+# supports all the ansible commands: ansible-playbook, ansible-galaxy, etc
+ENTRYPOINT ["/usr/bin/env"]

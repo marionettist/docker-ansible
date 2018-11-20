@@ -2,18 +2,20 @@
 
 Based on [walokra/ansible-playbook](https://github.com/walokra/docker-ansible-playbook)
 
-Docker Image of Ansible for executing ansible-playbook command against an externally mounted set of Ansible playbooks. Based on [philm/ansible_playbook](https://github.com/philm/ansible_playbook)
+Docker Image of Ansible for executing ansible-playbook command and other ansible commands against an externally mounted set of Ansible playbooks.
+
+Based on [philm/ansible_playbook](https://github.com/philm/ansible_playbook)
 
 ## Build
 
 ```
-docker build -t marionettist/ansible-playbook .
+./docker-build.sh
 ```
 
 ### Test
 
 ```
-$ docker run --name ansible-playbook --rm marionettist/ansible-playbook --version
+$ docker run --name ansible --rm marionettist/ansible ansible-playbook --version
 
 ansible-playbook 2.3.0.0
   config file =
@@ -24,35 +26,22 @@ ansible-playbook 2.3.0.0
 ## Running Ansible Playbook
 
 ```
-docker run --rm -it -v PATH_TO_LOCAL_PLAYBOOKS_DIR:/ansible/playbooks marionettist/ansible-playbook PLAYBOOK_FILE
+docker run --rm -it -v PATH_TO_LOCAL_PLAYBOOKS_DIR:/ansible/playbooks marionettist/ansible ansible-playbook PLAYBOOK_FILE
 ```
 
 For example, assuming your project's structure follows [best practices](http://docs.ansible.com/ansible/playbooks_best_practices.html#directory-layout), the command to run ansible-playbook from the top-level directory would look like:
 
 ```
-docker run --rm -it -v $(pwd):/ansible/playbooks marionettist/ansible-playbook site.yml
+docker run --rm -it -v $(pwd):/ansible/playbooks marionettist/ansible ansible-playbook site.yml
 ```
 
 Ansible playbook variables can simply be added after the playbook name.
 
 ### Ansible Helper wrapper
 
-Shell script named ansible_helper that wraps a Docker image containing Ansible:
+There are helper scripts to make it easier to call the various ansible commands.
 
-```
-docker run --rm -it \
-  -v ~/.ssh/id_rsa:/root/.ssh/id_rsa \
-  -v ~/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub \
-  -v $(pwd):/ansible/playbooks \
-  -v /var/log/ansible/ansible.log \
-  marionettist/ansible-playbook "$@"
-```
-
-Point the above script to any inventory file so that we can execute any Ansible command on any host, e.g.
-
-```
-./ansible_helper play playbooks/create_user.yml -i inventory/staging -e 'some_var=some_value'
-```
+Put the `bin` folder in your `PATH` and you will be able to run `ansible-playbook.sh`, etc...
 
 ## SSH Keys
 
@@ -63,7 +52,7 @@ docker run --rm -it \
     -v ~/.ssh/id_rsa:/root/.ssh/id_rsa \
     -v ~/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub \
     -v $(pwd):/ansible/playbooks \
-    marionettist/ansible-playbook site.yml
+    marionettist/ansible ansible-playbook site.yml
 ```
 
 ## Ansible Vault
@@ -73,13 +62,13 @@ If you've encrypted any data using [Ansible Vault](http://docs.ansible.com/ansib
 ```
 docker run --rm -it -v $(pwd):/ansible/playbooks \
     -v ~/.vault_pass.txt:/root/.vault_pass.txt \
-    marionettist/ansible-playbook \
+    marionettist/ansible ansible-playbook \
     site.yml --vault-password-file /root/.vault_pass.txt
 ```                    
 
 Note: the Ansible Vault executable is embedded in this image. To use it, specify a different entrypoint:
 
 ```
-docker run --rm -it -v $(pwd):/ansible/playbooks --entrypoint ansible-vault \
-  marionettist/ansible-playbook encrypt FILENAME
+docker run --rm -it -v $(pwd):/ansible/playbooks \
+  marionettist/ansible ansible-vault encrypt FILENAME
 ```
