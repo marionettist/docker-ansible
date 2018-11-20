@@ -5,4 +5,4 @@ docker run --rm -it \
   -v ~/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub \
   -v $(pwd):/ansible/playbooks \
   -v /var/log/ansible/ansible.log \
-  walokra/ansible-playbook "$@"
+  marionettist/ansible-playbook "$@"
